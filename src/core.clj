@@ -118,3 +118,4 @@
 ;;consolidate git functions into a my lib
 ;; git, gitlocal, gitdb, gitwip, nongit, nongitcopy
 ;; account for nested git repos
+;; add stash detection
