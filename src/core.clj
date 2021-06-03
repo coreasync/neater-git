@@ -42,7 +42,7 @@
      (remove #(-> % clojure.java.io/file sym-link?))
      not-empty)))
 
-(defn ll[x] (prn x) x)
+#_(defn ll[x] (prn x) x)
 (defn git-repo-touched[d]
   (p/with-repo d
     (->>
@@ -64,9 +64,9 @@
       {:extra (diff-f local remote) :missing (diff-f remote local)})))
 
 
-(defn git-ls-remote-repository[d] (->> (-> (Git/lsRemoteRepository) (.setRemote d) (.setHeads true) (.call)) (map #(.getName %))))
+#_(defn git-ls-remote-repository[d] (->> (-> (Git/lsRemoteRepository) (.setRemote d) (.setHeads true) (.call)) (map #(.getName %))))
 
-(defn git-ls-remote[d]
+#_(defn git-ls-remote[d]
   (p/with-repo d
     (p/git-ls-remote repo)))
 
