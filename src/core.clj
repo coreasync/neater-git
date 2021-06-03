@@ -104,7 +104,7 @@
         (println pd "stash is present" ls))
       )
     ;;use for better output
-    (when-not is-git-dir
+    #_(when-not is-git-dir
       (if (not-empty files)
         (println pd "non Git with local files" #_files)
         (when (empty? dirs)
