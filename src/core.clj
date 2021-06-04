@@ -56,11 +56,11 @@
 (defn git-repo-local-commits[d] ;;this is the first version which might not be accurate
   (p/with-repo d
     (let[commit-ref-f (fn[e] [(.getName (.getObjectId e)) (.getName e)])
-          commit-ref-groups-f (fn[scope] (group-by first (map commit-ref-f (p/git-branch-list repo scope))))
-          keys-f (fn[ps] (-> ps keys set))
-          diff-f (fn[d1 d2] (mapcat d1 (clojure.set/difference (keys-f d1) (keys-f d2))))
-          local (commit-ref-groups-f :local)
-          remote (commit-ref-groups-f :remote)]
+         commit-ref-groups-f (fn[scope] (group-by first (map commit-ref-f (p/git-branch-list repo scope))))
+         keys-f (fn[ps] (-> ps keys set))
+         diff-f (fn[d1 d2] (mapcat d1 (clojure.set/difference (keys-f d1) (keys-f d2))))
+         local (commit-ref-groups-f :local)
+         remote (commit-ref-groups-f :remote)]
       {:extra (diff-f local remote) :missing (diff-f remote local)})))
 
 
