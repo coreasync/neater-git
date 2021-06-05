@@ -94,37 +94,47 @@
         remotes (.getSubsections config "remote")]
     (map #(.getString config "remote" % "url") remotes)))
 
-(defn ls-unclean-git-dirs[d]
+(defn ls-walk[f1 f2 d]
   (let[fd (io/file d)
        all (->> fd .listFiles seq (remove #(#{".neater" ".DS_Store"} (.getName %))) (remove sym-link?))
        [dirs files] ((juxt filter remove) #(.isDirectory %) all)
        is-git-dir (mcontains? (map #(.getName %) dirs) ".git")
-       pd (.getPath fd)]
-    (when is-git-dir
-      (print pd)
-      #_(when-not (git-repo-clean? d)
-          (print " ,is not clean "))
-      (when-let[ut (git-repo-untracked d)]
-        (print " ,contains untracked " ut))
-      (when-let[ut (git-repo-touched d)]
-        (print " ,contains touched " ut))
-      (when (empty? (git-get-remote d))
-        (print " ,has no remotes"))
-      (when-let[lc (-> d git-repo-local-commits :extra not-empty)]
-        (print " ,branches missmatch:" lc))
-      (when-let[ls (-> d git-list-stash vec not-empty)]
-        (print " ,stash is present" ls))
-      (println)
-      #_(print (git-repo-heads d))
-      )
-    ;;use for better output
-    #_(when-not is-git-dir
-      (if (not-empty files)
-        (println pd "non Git with local files" #_files)
-        (when (empty? dirs)
-            (println pd "non empty"))))
-    (when-not is-git-dir
-          (reduce concat (map ls-unclean-git-dirs dirs)))))
+       r (if is-git-dir
+           (if f1 (f1 d))
+           (if f2 (f2 d)))]
+    (if is-git-dir
+      [(.getPath fd) r]
+      (into {} (map (partial ls-walk f1 f2) dirs)))))
+
+
+(defn git-unclean[d]
+  (let [fd (io/file d)
+        pd (.getPath fd)]
+    (print pd)
+  #_(when-not (git-repo-clean? d)
+      (print " ,is not clean "))
+  (when-let[ut (git-repo-untracked d)]
+    (print " ,contains untracked " ut))
+  (when-let[ut (git-repo-touched d)]
+    (print " ,contains touched " ut))
+  (when (empty? (git-get-remote d))
+    (print " ,has no remotes"))
+  (when-let[lc (-> d git-repo-local-commits :extra not-empty)]
+    (print " ,branches missmatch:" lc))
+  (when-let[ls (-> d git-list-stash vec not-empty)]
+    (print " ,stash is present" ls))
+  (println)
+  1))
+
+;;use for better output
+#_(when-not is-git-dir
+    (if (not-empty files)
+      (println pd "non Git with local files" #_files)
+      (when (empty? dirs)
+        (println pd "non empty"))))
+
+(defn ls-unclean-git-dirs[d]
+  (ls-walk git-unclean nil d))
 
 ;;sync local files using soft links to gitlocal
 ;;create a file with state to clone everything from GitHub/recover from a file with a state
