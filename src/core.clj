@@ -90,18 +90,21 @@
        is-git-dir (mcontains? (map #(.getName %) dirs) ".git")
        pd (.getPath fd)]
     (when is-git-dir
+      (print pd)
       #_(when-not (git-repo-clean? d)
-          (println pd "is not clean "))
+          (print " ,is not clean "))
       (when-let[ut (git-repo-untracked d)]
-        (println pd "contains untracked " ut))
+        (print " ,contains untracked " ut))
       (when-let[ut (git-repo-touched d)]
-        (println pd "contains touched " ut))
+        (print " ,contains touched " ut))
       (when (empty? (git-get-remote d))
-        (println pd "has no remotes"))
+        (print " ,has no remotes"))
       (when-let[lc (-> d git-repo-local-commits :extra not-empty)]
-        (println pd "branches missmatch:" lc))
+        (print " ,branches missmatch:" lc))
       (when-let[ls (-> d git-list-stash vec not-empty)]
-        (println pd "stash is present" ls))
+        (print " ,stash is present" ls))
+      (println)
+      #_(print (git-repo-heads d))
       )
     ;;use for better output
     #_(when-not is-git-dir
