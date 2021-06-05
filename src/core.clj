@@ -42,6 +42,17 @@
      (remove #(-> % clojure.java.io/file sym-link?))
      not-empty)))
 
+(defn rh[a] {:name (.getName (.getValue a)) :leaf (.getName (.getLeaf (.getValue a))) :id (.getName (.getObjectId (.getValue a)))})
+(defn git-repo-heads[d]
+  (p/with-repo d
+    (->>
+     repo
+     .getRepository
+     .getAllRefs
+     (map rh)
+     doall
+     )))
+
 #_(defn ll[x] (prn x) x)
 (defn git-repo-touched[d]
   (p/with-repo d
