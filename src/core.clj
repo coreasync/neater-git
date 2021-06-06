@@ -75,6 +75,18 @@
          remote (commit-ref-groups-f :remote)]
       {:extra (diff-f local remote) :missing (diff-f remote local)})))
 
+(comment
+  (use 'core :reload)
+  (def p "/home/.../code")
+  (def a1 (ls-walk git-unclean nil p))
+  (def a2f (into {} (for [k (->> a1 (filter (comp empty? second)) (map first))] [k (git-repo-heads k)])))
+  (def a2r (into {} (for [k (->> a1 (remove (comp empty? second)) (map first))] [k (git-repo-heads k)])))
+  (->> a2f (group-by second) (map second) (map (partial map first)) (sort-by first) pprint)
+  (->> a2r (group-by second) (map second) (map (partial map first)) (sort-by first) pprint)
+  (->> [[]] (map git-cmd-check) dorun)
+  (pprint (ls-unclean-git-dirs p))
+)
+
 
 #_(defn git-ls-remote-repository[d] (->> (-> (Git/lsRemoteRepository) (.setRemote d) (.setHeads true) (.call)) (map #(.getName %))))
 
