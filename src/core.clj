@@ -1,6 +1,7 @@
 (ns core
   (:require[clojure.java.io :as io]
-           [clj-jgit.porcelain :as p])
+           [clj-jgit.porcelain :as p]
+           [clojure.string :as str])
   (:import[org.eclipse.jgit.api Git]))
 
 (defn mcontains?[coll key] (not (nil? (some #{key} coll))))
@@ -110,21 +111,19 @@
 (defn git-unclean[d]
   (let [fd (io/file d)
         pd (.getPath fd)]
-    (print pd)
-  #_(when-not (git-repo-clean? d)
-      (print " ,is not clean "))
-  (when-let[ut (git-repo-untracked d)]
-    (print " ,contains untracked " ut))
-  (when-let[ut (git-repo-touched d)]
-    (print " ,contains touched " ut))
-  (when (empty? (git-get-remote d))
-    (print " ,has no remotes"))
-  (when-let[lc (-> d git-repo-local-commits :extra not-empty)]
-    (print " ,branches missmatch:" lc))
-  (when-let[ls (-> d git-list-stash vec not-empty)]
-    (print " ,stash is present" ls))
-  (println)
-  1))
+    (remove nil?
+            [(when-not (git-repo-clean? d)
+               "is not clean")
+             (when-let[ut (git-repo-untracked d)]
+               (str "contains " (count ut) " untracked: " (str/join ", " (take 3 ut))))
+             (when-let[ut (git-repo-touched d)]
+               (str "contains " (count ut) " touched: " (str/join ", " (take 3 ut))))
+             (when (empty? (git-get-remote d))
+               "has no remotes")
+             (when-let[lc (-> d git-repo-local-commits :extra not-empty)]
+               (str "branches missmatch: " lc))
+             (when-let[ls (-> d git-list-stash vec not-empty)]
+               (str "stash is present: " (take 3 ls)))])))
 
 ;;use for better output
 #_(when-not is-git-dir
