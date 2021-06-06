@@ -135,6 +135,10 @@
 (defn ls-unclean-git-dirs[d]
   (ls-walk git-unclean nil d))
 
+
+(defn git-cmd-check[dd] (println "------") (dorun (map #(println (format "cd %s;git status;git show-ref --heads; git branch --all;git tag;gitk --all&" %)) dd)))
+
+
 ;;sync local files using soft links to gitlocal
 ;;create a file with state to clone everything from GitHub/recover from a file with a state
 ;;fetch and check for forced pushes
